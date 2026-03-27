@@ -100,7 +100,7 @@ TodoItem parseTodoString(const char *str) {
              DEFAULT_PRIORITY);
       todo.priority = DEFAULT_PRIORITY;
     } else {
-      todo.priority = str[1];
+      todo.priority = toupper(str[1]);
     }
     pos += 3;
   } else {
