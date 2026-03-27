@@ -169,25 +169,24 @@ void printTodoItem(TodoItem item) {
   }
 }
 
+// !!This does not free a todo pointer!!
+// Call this to free context and tags and other strings. to free a todo struct,
+// just call free on it
+void freeTodo(TodoItem todo) {
+  free(todo.description);
+  for (unsigned int i = 0; i < todo.context_amount; ++i) {
+    free(todo.context[i]);
+  }
+  free(todo.context);
+  for (unsigned int i = 0; i < todo.tags_amount; ++i) {
+    free(todo.tags[i]);
+  }
+  free(todo.tags);
+}
+
 int main(int argc, char **argv) {
-  // for (int i = 0; i < argc; ++i) {
-  //   printf("args[%d] = %s\n", i, argv[i]);
-  // }
-  //
-
-  // printTodoItem((TodoItem){
-  //     .description = "A test item!",
-  //     .context = "Programming",
-  //     .tags = (char *[]){"Computer", "c-programming", "fun-project"},
-  //     .tags_amount = 3,
-  //     .priority = 100,
-  //     .start_date = time(NULL),
-  //     .due_date = 0,
-  // });
-  //
-  TodoItem todo = parseTodoString(
-      "(A) 2026-03-26 A +test item to test this software! +Todo-mangaer-project @Programming @c-stuff");
+  TodoItem todo = parseTodoString(argv[1]);
   printTodoItem(todo);
-
+  freeTodo(todo);
   return 0;
 }
