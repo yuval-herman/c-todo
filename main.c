@@ -1,33 +1,166 @@
+#include <ctype.h>
+#include <stdbool.h>
 #include <stdio.h>
-#include <time.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define DEFAULT_PRIORITY 'C'
 
 char *todo_file = "./todo.txt";
 
 typedef struct {
+  unsigned int year, month, day;
+} Date;
+
+typedef struct {
   char *description;
-  char *context;
-  char *project;
+  char **context;
+  unsigned int context_amount;
   char **tags;
   unsigned int tags_amount;
-  unsigned int priority;
-  time_t start_date; // 0 value is no time set
-  time_t due_date;   // 0 value is no time set
+  char priority; // A single letter 'A' is highest priority, 'Z' is lowest, 0
+                 // value is no priority set
+  Date creation_date; // 0 value is no time set
+  // This was not in the original spec, for now we won't support this
+  // Date due_date;      // 0 value is no time set
 } TodoItem;
 
-// TodoItem parseTodoString(const char *str) {}
+// Tag is used directly, if you intend to char the string later, call strdup on
+// it first
+void addTag(TodoItem *todo, char *tag) {
+  unsigned int new_tags_amount = todo->tags_amount + 1;
+  todo->tags = realloc(todo->tags, sizeof(todo->tags[0]) * new_tags_amount);
+  todo->tags[todo->tags_amount] = tag;
+  todo->tags_amount = new_tags_amount;
+}
+
+// Context is used directly, if you intend to char the string later, call strdup
+// on it first
+void addContext(TodoItem *todo, char *context) {
+  unsigned int new_context_amount = todo->context_amount + 1;
+  todo->context =
+      realloc(todo->context, sizeof(todo->context[0]) * new_context_amount);
+  todo->context[todo->context_amount] = context;
+  todo->context_amount = new_context_amount;
+}
+
+unsigned int skip_blank(const char *str) {
+  unsigned int pos = 0;
+  while (isblank(str[pos])) {
+    pos++;
+  };
+  return pos;
+}
+
+unsigned int skip_num(const char *str) {
+  unsigned int pos = 0;
+  while (isdigit(str[pos])) {
+    pos++;
+  };
+  return pos;
+}
+
+unsigned int skip_alpha(const char *str) {
+  unsigned int pos = 0;
+  while (isalpha(str[pos])) {
+    pos++;
+  };
+  return pos;
+}
+
+unsigned int skip_to_blank(const char *str) {
+  unsigned int pos = 0;
+  while (!isblank(str[pos])) {
+    pos++;
+  };
+  return pos;
+}
+
+char datePrintBuf[11];
+char *DateToStr(Date date) {
+  snprintf(datePrintBuf, 11, "%u/%u/%u", date.year, date.month, date.day);
+  return datePrintBuf;
+}
+
+bool isDateEmpty(Date date) {
+  return date.year == 0 && date.month == 0 && date.day == 0;
+}
+
+TodoItem parseTodoString(const char *str) {
+  TodoItem todo = {0};
+  unsigned int pos = 0;
+
+  // Example todo:
+  // (A) 2026-03-26 A test item! +Todo-mangaer-project @Programming
+
+  // Priority is optional, but always appears first if it exists
+  if (str[0] == '(' && str[2] == ')') {
+    if (!isalpha(str[1])) {
+      printf("Warning: illegal priority (%c), registering as (%c)", str[1],
+             DEFAULT_PRIORITY);
+      todo.priority = DEFAULT_PRIORITY;
+    } else {
+      todo.priority = str[1];
+    }
+    pos += 3;
+  } else {
+    todo.priority = 0;
+  }
+
+  pos += skip_blank(str + pos);
+
+  // Creation date is optional, but always appears right after the priority,
+  // or at the start if the former does not exist
+  unsigned int year, month, day;
+  int res = sscanf(str + pos, "%u-%u-%u", &year, &month, &day);
+  if (res == 3) {
+    todo.creation_date.year = year;
+    todo.creation_date.month = month;
+    todo.creation_date.day = day;
+    pos += 10;
+  }
+
+  todo.description = strdup(str + pos + skip_blank(str + pos));
+
+  // Tags and context can appears anywhere in the string
+  while (str[pos] != '\0') {
+    // This is a tag
+    if (str[pos] == '+') {
+      unsigned int tag_end = pos + skip_to_blank(str + pos);
+      addTag(&todo, strndup(str + pos, tag_end - pos));
+      pos = tag_end;
+    }
+    // This is a context
+    else if (str[pos] == '@') {
+      unsigned int context_end = pos + skip_to_blank(str + pos);
+      addContext(&todo, strndup(str + pos, context_end - pos));
+      pos = context_end;
+    }
+    ++pos;
+  }
+
+  return todo;
+}
 
 void printTodoItem(TodoItem item) {
-  printf("description = %s\n"
-         "context     = %s\n"
-         "project     = %s\n"
-         "priority    = %u\n",
-         item.description, item.context, item.project, item.priority);
+  printf("description = %s\n", item.description);
 
-  if (item.start_date)
-    printf("start_date  = %s", ctime(&item.start_date));
-  if (item.due_date)
-    printf("due_date    = %s", ctime(&item.due_date));
+  if (item.priority)
+    printf("priority    = %c\n", item.priority);
+  else
+    printf("priority    = (not set)\n");
 
+  if (!isDateEmpty(item.creation_date))
+    printf("start_date  = %s\n", DateToStr(item.creation_date));
+  // if (!isDateEmpty(item.due_date))
+  //   printf("due_date    = %s\n", DateToStr(item.due_date));
+
+  if (item.context_amount) {
+    printf("\nContext:\n");
+    for (unsigned int i = 0; i < item.context_amount; ++i) {
+      printf("\t%s\n", item.context[i]);
+    }
+  }
   if (item.tags_amount) {
     printf("\nTags:\n");
     for (unsigned int i = 0; i < item.tags_amount; ++i) {
@@ -41,16 +174,20 @@ int main(int argc, char **argv) {
   //   printf("args[%d] = %s\n", i, argv[i]);
   // }
   //
-  printTodoItem((TodoItem){
-      .description = "A test item!",
-      .context = "Programming",
-      .project = "Todo mangaer project",
-      .tags = (char *[]){"Computer", "c-programming", "fun-project"},
-      .tags_amount = 3,
-      .priority = 100,
-      .start_date = time(NULL),
-      .due_date = 0,
-  });
+
+  // printTodoItem((TodoItem){
+  //     .description = "A test item!",
+  //     .context = "Programming",
+  //     .tags = (char *[]){"Computer", "c-programming", "fun-project"},
+  //     .tags_amount = 3,
+  //     .priority = 100,
+  //     .start_date = time(NULL),
+  //     .due_date = 0,
+  // });
+  //
+  TodoItem todo = parseTodoString(
+      "(A) 2026-03-26 A +test item to test this software! +Todo-mangaer-project @Programming @c-stuff");
+  printTodoItem(todo);
 
   return 0;
 }
