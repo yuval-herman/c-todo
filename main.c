@@ -1,3 +1,5 @@
+#include "cli.c"
+
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -6,7 +8,7 @@
 
 #define DEFAULT_PRIORITY 'C'
 
-char *todo_file = "./todo.txt";
+static char *todo_file = "./todo.txt";
 
 typedef struct {
   unsigned int year, month, day;
@@ -27,7 +29,7 @@ typedef struct {
 
 // Tag is used directly, if you intend to char the string later, call strdup on
 // it first
-void addTag(TodoItem *todo, char *tag) {
+static void addTag(TodoItem *todo, char *tag) {
   unsigned int new_tags_amount = todo->tags_amount + 1;
   todo->tags = realloc(todo->tags, sizeof(todo->tags[0]) * new_tags_amount);
   todo->tags[todo->tags_amount] = tag;
@@ -36,7 +38,7 @@ void addTag(TodoItem *todo, char *tag) {
 
 // Context is used directly, if you intend to char the string later, call strdup
 // on it first
-void addContext(TodoItem *todo, char *context) {
+static void addContext(TodoItem *todo, char *context) {
   unsigned int new_context_amount = todo->context_amount + 1;
   todo->context =
       realloc(todo->context, sizeof(todo->context[0]) * new_context_amount);
@@ -44,49 +46,49 @@ void addContext(TodoItem *todo, char *context) {
   todo->context_amount = new_context_amount;
 }
 
-unsigned int skip_blank(const char *str) {
+static unsigned int skip_blank(const char *str) {
   unsigned int pos = 0;
   while (isblank(str[pos])) {
     pos++;
-  };
+  }
   return pos;
 }
 
-unsigned int skip_num(const char *str) {
+static unsigned int skip_num(const char *str) {
   unsigned int pos = 0;
   while (isdigit(str[pos])) {
     pos++;
-  };
+  }
   return pos;
 }
 
-unsigned int skip_alpha(const char *str) {
+static unsigned int skip_alpha(const char *str) {
   unsigned int pos = 0;
   while (isalpha(str[pos])) {
     pos++;
-  };
+  }
   return pos;
 }
 
-unsigned int skip_to_blank(const char *str) {
+static unsigned int skip_to_blank(const char *str) {
   unsigned int pos = 0;
   while (!isblank(str[pos])) {
     pos++;
-  };
+  }
   return pos;
 }
 
-char datePrintBuf[11];
-char *DateToStr(Date date) {
+static char datePrintBuf[11];
+static char *DateToStr(Date date) {
   snprintf(datePrintBuf, 11, "%u/%u/%u", date.year, date.month, date.day);
   return datePrintBuf;
 }
 
-bool isDateEmpty(Date date) {
+static bool isDateEmpty(Date date) {
   return date.year == 0 && date.month == 0 && date.day == 0;
 }
 
-TodoItem parseTodoString(const char *str) {
+static TodoItem parseTodoString(const char *str) {
   TodoItem todo = {0};
   unsigned int pos = 0;
 
@@ -142,7 +144,7 @@ TodoItem parseTodoString(const char *str) {
   return todo;
 }
 
-void printTodoItem(TodoItem item) {
+static void printTodoItem(TodoItem item) {
   printf("description = %s\n", item.description);
 
   if (item.priority)
@@ -172,7 +174,7 @@ void printTodoItem(TodoItem item) {
 // !!This does not free a todo pointer!!
 // Call this to free context and tags and other strings. to free a todo struct,
 // just call free on it
-void freeTodo(TodoItem todo) {
+static void freeTodo(TodoItem todo) {
   free(todo.description);
   for (unsigned int i = 0; i < todo.context_amount; ++i) {
     free(todo.context[i]);
