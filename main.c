@@ -15,14 +15,14 @@ typedef struct {
 typedef struct {
   char *description;
   char **context;
-  unsigned int context_amount;
   char **tags;
+  unsigned int context_amount;
   unsigned int tags_amount;
-  char priority; // A single letter 'A' is highest priority, 'Z' is lowest, 0
-                 // value is no priority set
   Date creation_date; // 0 value is no time set
   // This was not in the original spec, for now we won't support this
   // Date due_date;      // 0 value is no time set
+  char priority; // A single letter 'A' is highest priority, 'Z' is lowest, 0
+                 // value is no priority set
 } TodoItem;
 
 // Tag is used directly, if you intend to char the string later, call strdup on
