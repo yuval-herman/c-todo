@@ -18,13 +18,18 @@ int main(int argc, char **argv) {
   case CLI_NONE:
     fprintf(stderr, "No command provided\n");
     exit(-1);
-  case CLI_ADD:
-    printf("Added new todo [%s]\n", args.values[0]);
+  case CLI_ADD: {
+    TodoItem todo = parser_parseTodoString(args.values[0]);
+    printf("Added new todo\n");
+    manager_printTodoItem(todo);
+    manager_freeTodo(todo);
     break;
+  }
   case CLI_REMOVE:
     printf("Removed todo\n");
     break;
-  case CLI_UNKNOWN: // Unknown should be handled above in the error handling code
+  case CLI_UNKNOWN: // Unknown should be handled above in the error handling
+                    // code
   default:
     assert(0 && "Reached impossible sub-command");
   }
