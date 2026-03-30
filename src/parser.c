@@ -6,7 +6,7 @@
 #include "parser.h"
 
 
-// Tag is used directly, if you intend to char the string later, call strdup on
+// Tag is used directly, if you intend to change the string later, call strdup on
 // it first
 void parser_addTag(TodoItem *todo, char *tag) {
   unsigned int new_tags_amount = todo->tags_amount + 1;
@@ -15,7 +15,7 @@ void parser_addTag(TodoItem *todo, char *tag) {
   todo->tags_amount = new_tags_amount;
 }
 
-// Context is used directly, if you intend to char the string later, call strdup
+// Context is used directly, if you intend to change the string later, call strdup
 // on it first
 void parser_addContext(TodoItem *todo, char *context) {
   unsigned int new_context_amount = todo->context_amount + 1;
