@@ -93,4 +93,10 @@ void cli_printError(CLIArgs args) {
   }
 }
 
-void cli_freeArgs(CLIArgs args) {}
+void cli_freeArgs(CLIArgs args) {
+  for (unsigned int i = 0; i < args.values_amount; ++i) {
+    free(args.values[i]);
+  }
+  free(args.values);
+  free(args.todo_ids);
+}
