@@ -6,6 +6,7 @@ int main(int argc, char **argv) {
   Cmd cmd = {0};
   nob_cc(&cmd);
   nob_cc_flags(&cmd);
+  nob_cmd_append(&cmd, "-g");
   nob_cmd_append(&cmd, "-Werror=switch-enum");
   nob_cc_output(&cmd, "td");
   nob_cc_inputs(&cmd, "src/cli.c", "src/main.c", "src/parser.c",
