@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
     fprintf(stderr, "No command provided\n");
     exit(-1);
   case CLI_ADD:
-    printf("Added new todo\n");
+    printf("Added new todo [%s]\n", args.values[0]);
     break;
   case CLI_REMOVE:
     printf("Removed todo\n");
