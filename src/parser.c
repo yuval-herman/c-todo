@@ -1,13 +1,12 @@
-#include <stdlib.h>
-#include <stdio.h>
 #include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "parser.h"
 
-
-// Tag is used directly, if you intend to change the string later, call strdup on
-// it first
+// Tag is used directly, if you intend to change the string later, call strdup
+// on it first
 void parser_addTag(TodoItem *todo, char *tag) {
   unsigned int new_tags_amount = todo->tags_amount + 1;
   todo->tags = realloc(todo->tags, sizeof(todo->tags[0]) * new_tags_amount);
@@ -15,8 +14,8 @@ void parser_addTag(TodoItem *todo, char *tag) {
   todo->tags_amount = new_tags_amount;
 }
 
-// Context is used directly, if you intend to change the string later, call strdup
-// on it first
+// Context is used directly, if you intend to change the string later, call
+// strdup on it first
 void parser_addContext(TodoItem *todo, char *context) {
   unsigned int new_context_amount = todo->context_amount + 1;
   todo->context =
@@ -27,7 +26,7 @@ void parser_addContext(TodoItem *todo, char *context) {
 
 unsigned int skip_blank(const char *str) {
   unsigned int pos = 0;
-  while (isblank(str[pos])) {
+  while (str[pos] != '\0' && isblank(str[pos])) {
     pos++;
   }
   return pos;
@@ -35,7 +34,7 @@ unsigned int skip_blank(const char *str) {
 
 unsigned int skip_num(const char *str) {
   unsigned int pos = 0;
-  while (isdigit(str[pos])) {
+  while (str[pos] != '\0' && isdigit(str[pos])) {
     pos++;
   }
   return pos;
@@ -43,7 +42,7 @@ unsigned int skip_num(const char *str) {
 
 unsigned int skip_alpha(const char *str) {
   unsigned int pos = 0;
-  while (isalpha(str[pos])) {
+  while (str[pos] != '\0' && isalpha(str[pos])) {
     pos++;
   }
   return pos;
@@ -51,7 +50,7 @@ unsigned int skip_alpha(const char *str) {
 
 unsigned int skip_to_blank(const char *str) {
   unsigned int pos = 0;
-  while (!isblank(str[pos])) {
+  while (str[pos] != '\0' && !isblank(str[pos])) {
     pos++;
   }
   return pos;
@@ -122,4 +121,3 @@ TodoItem parser_parseTodoString(const char *str) {
 
   return todo;
 }
-
