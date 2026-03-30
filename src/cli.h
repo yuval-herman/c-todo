@@ -1,6 +1,9 @@
 #ifndef CLI_H
 #define CLI_H
 
+// invocation structure:
+// td <sub-command> <options> <values> <options>
+// 
 // td add <todo-txt>
 // td a <todo-txt>
 // td remove <td-id>
@@ -20,7 +23,8 @@ typedef enum {
 
 typedef struct {
   CLISubcommand sub_command;
-  char *value;
+  char **values;
+  unsigned int values_amount;
   int error_code; // zero for no error
 } CLIArgs;
 
@@ -28,7 +32,7 @@ typedef struct {
 CLIArgs cli_parseArgs(int argc, char **argv);
 
 // Print an error for the given error code
-void cli_printError(int error_code);
+void cli_printError(CLIArgs args);
 
 // Frees the `CLIArgs` struct
 void cli_freeArgs(CLIArgs args);
