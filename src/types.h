@@ -5,7 +5,7 @@
 
 typedef struct {
   unsigned int year, month, day;
-} Date;
+} TodoDate;
 
 typedef struct {
   char *description;
@@ -13,7 +13,7 @@ typedef struct {
   char **tags;
   unsigned int context_amount;
   unsigned int tags_amount;
-  Date creation_date; // 0 value is no time set
+  TodoDate creation_date; // 0 value is no time set
   // This was not in the original spec, for now we won't support this
   // Date due_date;      // 0 value is no time set
   char priority; // A single letter 'A' is highest priority, 'Z' is lowest, 0

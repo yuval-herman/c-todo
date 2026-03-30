@@ -19,9 +19,9 @@ typedef struct {
 } CLIArgs;
 
 // Allocates memory, call `freeArgs` when done with the args
-CLIArgs parseArgs(int argc, char **argv);
+CLIArgs cli_parseArgs(int argc, char **argv);
 
 // Frees the `CLIArgs` struct
-void freeArgs(CLIArgs args);
+void cli_freeArgs(CLIArgs args);
 
 #endif // CLI_H

@@ -4,7 +4,7 @@
 #include "manager.h"
 #include "parser.h"
 
-void printTodoItem(TodoItem item) {
+void manager_printTodoItem(TodoItem item) {
   printf("description = %s\n", item.description);
 
   if (item.priority)
@@ -34,7 +34,7 @@ void printTodoItem(TodoItem item) {
 // !!This does not free a todo pointer!!
 // Call this to free context and tags and other strings. to free a todo struct,
 // just call free on it
-void freeTodo(TodoItem todo) {
+void manager_freeTodo(TodoItem todo) {
   free(todo.description);
   for (unsigned int i = 0; i < todo.context_amount; ++i) {
     free(todo.context[i]);

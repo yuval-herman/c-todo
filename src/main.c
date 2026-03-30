@@ -7,7 +7,7 @@
 #include "types.h"
 
 int main(int argc, char **argv) {
-  CLIArgs args = parseArgs(argc, argv);
+  CLIArgs args = cli_parseArgs(argc, argv);
 
   switch (args.sub_command) {
   case CLI_NONE:
@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
     break;
   }
 
-  freeArgs(args);
+  cli_freeArgs(args);
   // TodoItem todo = parseTodoString(argv[1]);
   // printTodoItem(todo);
   // freeTodo(todo);

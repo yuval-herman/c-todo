@@ -3,7 +3,7 @@
 
 #include "types.h"
 
-void printTodoItem(TodoItem item);
-void freeTodo(TodoItem todo);
+void manager_printTodoItem(TodoItem item);
+void manager_freeTodo(TodoItem todo);
 
 #endif // MANAGER_H

@@ -2,7 +2,7 @@
 
 #include "cli.h"
 
-CLIArgs parseArgs(int argc, char **argv) {
+CLIArgs cli_parseArgs(int argc, char **argv) {
   CLIArgs args = {0};
   if (argc == 1)
     return args;
@@ -19,4 +19,4 @@ CLIArgs parseArgs(int argc, char **argv) {
   return args;
 }
 
-void freeArgs(CLIArgs args) {}
+void cli_freeArgs(CLIArgs args) {}

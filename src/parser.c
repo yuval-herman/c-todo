@@ -8,7 +8,7 @@
 
 // Tag is used directly, if you intend to char the string later, call strdup on
 // it first
-void addTag(TodoItem *todo, char *tag) {
+void parser_addTag(TodoItem *todo, char *tag) {
   unsigned int new_tags_amount = todo->tags_amount + 1;
   todo->tags = realloc(todo->tags, sizeof(todo->tags[0]) * new_tags_amount);
   todo->tags[todo->tags_amount] = tag;
@@ -17,7 +17,7 @@ void addTag(TodoItem *todo, char *tag) {
 
 // Context is used directly, if you intend to char the string later, call strdup
 // on it first
-void addContext(TodoItem *todo, char *context) {
+void parser_addContext(TodoItem *todo, char *context) {
   unsigned int new_context_amount = todo->context_amount + 1;
   todo->context =
       realloc(todo->context, sizeof(todo->context[0]) * new_context_amount);
@@ -58,16 +58,16 @@ unsigned int skip_to_blank(const char *str) {
 }
 
 char datePrintBuf[11];
-char *DateToStr(Date date) {
+char *DateToStr(TodoDate date) {
   snprintf(datePrintBuf, 11, "%u/%u/%u", date.year, date.month, date.day);
   return datePrintBuf;
 }
 
-bool isDateEmpty(Date date) {
+bool isDateEmpty(TodoDate date) {
   return date.year == 0 && date.month == 0 && date.day == 0;
 }
 
-TodoItem parseTodoString(const char *str) {
+TodoItem parser_parseTodoString(const char *str) {
   TodoItem todo = {0};
   unsigned int pos = 0;
 
@@ -108,13 +108,13 @@ TodoItem parseTodoString(const char *str) {
     // This is a tag
     if (str[pos] == '+') {
       unsigned int tag_end = pos + skip_to_blank(str + pos);
-      addTag(&todo, strndup(str + pos, tag_end - pos));
+      parser_addTag(&todo, strndup(str + pos, tag_end - pos));
       pos = tag_end;
     }
     // This is a context
     else if (str[pos] == '@') {
       unsigned int context_end = pos + skip_to_blank(str + pos);
-      addContext(&todo, strndup(str + pos, context_end - pos));
+      parser_addContext(&todo, strndup(str + pos, context_end - pos));
       pos = context_end;
     }
     ++pos;
