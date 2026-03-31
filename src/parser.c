@@ -91,12 +91,12 @@ TodoItem parser_parseTodoString(const char *str) {
 
   // Creation date is optional, but always appears right after the priority,
   // or at the start if the former does not exist
-  unsigned int year, month, day;
-  int res = sscanf(str + pos, "%u-%u-%u", &year, &month, &day);
-  if (res == 3) {
-    todo.creation_date.year = year;
-    todo.creation_date.month = month;
-    todo.creation_date.day = day;
+  int year, month, day;
+  int res = sscanf(str + pos, "%4d-%2d-%2d", &year, &month, &day);
+  if (res == 3 && year > 0 && month > 0 && day > 0) {
+    todo.creation_date.year = (unsigned)year;
+    todo.creation_date.month = (unsigned)month;
+    todo.creation_date.day = (unsigned)day;
     pos += 10;
   }
 
