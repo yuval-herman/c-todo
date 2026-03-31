@@ -2,9 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define NOB_IMPLEMENTATION
+#include "../nob.h"
 #include "cli.h"
 #include "manager.h"
-#include "parser.h"
 #include "types.h"
 
 int main(int argc, char **argv) {
@@ -16,12 +17,15 @@ int main(int argc, char **argv) {
     exit(error_code);
   }
 
+  TodoDA todos = manager_readTodoFile("no-existent");
+  da_free(todos);
+
   switch (args.sub_command) {
   case CLI_NONE:
     fprintf(stderr, "No command provided\n");
     exit(-1);
   case CLI_ADD: {
-    TodoItem todo = parser_parseTodoString(args.values[0]);
+    TodoItem todo = manager_todoFromString(args.values[0]);
     printf("Added new todo\n");
     manager_printTodoItem(todo);
     manager_freeTodo(todo);
@@ -45,6 +49,7 @@ int main(int argc, char **argv) {
   }
 
   cli_freeArgs(args);
+  manager_destroy();
   // TodoItem todo = parseTodoString(argv[1]);
   // printTodoItem(todo);
   // freeTodo(todo);

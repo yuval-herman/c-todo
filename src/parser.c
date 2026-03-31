@@ -1,28 +1,9 @@
 #include <ctype.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include "parser.h"
-
-// Tag is used directly, if you intend to change the string later, call strdup
-// on it first
-void parser_addTag(TodoItem *todo, char *tag) {
-  unsigned int new_tags_amount = todo->tags_amount + 1;
-  todo->tags = realloc(todo->tags, sizeof(todo->tags[0]) * new_tags_amount);
-  todo->tags[todo->tags_amount] = tag;
-  todo->tags_amount = new_tags_amount;
-}
-
-// Context is used directly, if you intend to change the string later, call
-// strdup on it first
-void parser_addContext(TodoItem *todo, char *context) {
-  unsigned int new_context_amount = todo->context_amount + 1;
-  todo->context =
-      realloc(todo->context, sizeof(todo->context[0]) * new_context_amount);
-  todo->context[todo->context_amount] = context;
-  todo->context_amount = new_context_amount;
-}
+#include "manager.h"
 
 unsigned int skip_blank(const char *str) {
   unsigned int pos = 0;
@@ -107,13 +88,13 @@ TodoItem parser_parseTodoString(const char *str) {
     // This is a tag
     if (str[pos] == '+') {
       unsigned int tag_end = pos + skip_to_blank(str + pos);
-      parser_addTag(&todo, strndup(str + pos, tag_end - pos));
+      manager_addTag(&todo, strndup(str + pos, tag_end - pos));
       pos = tag_end;
     }
     // This is a context
     else if (str[pos] == '@') {
       unsigned int context_end = pos + skip_to_blank(str + pos);
-      parser_addContext(&todo, strndup(str + pos, context_end - pos));
+      manager_addContext(&todo, strndup(str + pos, context_end - pos));
       pos = context_end;
     }
     ++pos;
