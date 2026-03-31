@@ -18,13 +18,15 @@
 // returned.
 //
 // ////// remove, r
-// td remove <td-ids...>
-// td r <td-ids...>
+// td remove <td-id...>
+// td r <td-id...>
 //
 // `remove` should return an id array in the `todo_ids` field.
+// Each <td-id> is a four digit number, if a larger number is provided, it is
+// truncated at the fourth digit.
 //
 // If no value is provided, an error is returned.
-// If options were inserted in the middle of the <todo-ids...> an error should
+// If options were inserted in the middle of the <todo-id...> an error should
 // be returned. If non numeric ids were given, an error should be returned.
 //
 
@@ -49,7 +51,7 @@ typedef struct {
   CLISubcommand sub_command;
   char **values;
   unsigned int values_amount;
-  int *todo_ids; // There are multiple sub-commands that operate on a todo id.
+  unsigned int *todo_ids; // There are multiple sub-commands that operate on a todo id.
                  // If this field is redundant for this particular sub-command,
                  // it should therefore be ignored, and no assumptions on the
                  // value should be made

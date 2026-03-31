@@ -15,6 +15,14 @@ static void cli_addValue(CLIArgs *args, char *value) {
   args->values_amount = new_values_amount;
 }
 
+static void cli_addId(CLIArgs *args, unsigned int id) {
+  unsigned int new_ids_amount = args->todo_ids_amount + 1;
+  args->todo_ids =
+      realloc(args->todo_ids, sizeof(args->todo_ids[0]) * new_ids_amount);
+  args->todo_ids[args->todo_ids_amount] = id;
+  args->todo_ids_amount = new_ids_amount;
+}
+
 // static cli_parseOptions() TBD
 
 static CLIArgs cli_parseAdd(int argc, char **argv) {
@@ -46,6 +54,32 @@ static CLIArgs cli_parseAdd(int argc, char **argv) {
   return args;
 }
 
+static CLIArgs cli_parseRemove(int argc, char **argv) {
+  CLIArgs args = {0};
+  // Here we will place parsed ids before passing them to `cli_addId`
+  int id;
+
+  args.sub_command = CLI_REMOVE;
+
+  if (argc < 3) {
+    args.error_code = CLI_ERROR_EXPECTED_VALUE;
+    return args;
+  }
+
+  // TODO add option parsing
+  for (int i = 2; i < argc; ++i) {
+    int res = sscanf(argv[i], "%4d", &id);
+    if (res != 1 || id < 0) {
+      args.error_code = CLI_ERROR_INVALID_ID;
+      cli_addValue(&args, strdup(argv[i]));
+      return args;
+    }
+    cli_addId(&args, id);
+  }
+
+  return args;
+}
+
 CLIArgs cli_parseArgs(int argc, char **argv) {
   CLIArgs args = {0};
   if (argc == 1)
@@ -54,7 +88,7 @@ CLIArgs cli_parseArgs(int argc, char **argv) {
   if (strcmp(argv[1], "add") == 0 || strcmp(argv[1], "a") == 0) {
     args = cli_parseAdd(argc, argv);
   } else if (strcmp(argv[1], "remove") == 0 || strcmp(argv[1], "r") == 0) {
-    args.sub_command = CLI_REMOVE;
+    args = cli_parseRemove(argc, argv);
   } else {
     args.sub_command = CLI_UNKNOWN;
     args.values = &argv[1];

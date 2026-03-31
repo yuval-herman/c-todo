@@ -11,7 +11,9 @@ int main(int argc, char **argv) {
   CLIArgs args = cli_parseArgs(argc, argv);
   if (args.error_code != CLI_ERROR_OKAY) {
     cli_printError(args);
-    exit(args.error_code);
+    int error_code = args.error_code;
+    cli_freeArgs(args);
+    exit(error_code);
   }
 
   switch (args.sub_command) {
@@ -26,7 +28,15 @@ int main(int argc, char **argv) {
     break;
   }
   case CLI_REMOVE:
-    printf("Removed todo\n");
+    if (args.todo_ids_amount == 1) {
+      printf("Removed todo %u\n", args.todo_ids[0]);
+    } else {
+      printf("Removed todos ");
+      for (unsigned int i = 0; i < args.todo_ids_amount - 1; ++i) {
+        printf("%u, ", args.todo_ids[i]);
+      }
+      printf("%u\n", args.todo_ids[args.todo_ids_amount - 1]);
+    }
     break;
   case CLI_UNKNOWN: // Unknown should be handled above in the error handling
                     // code
