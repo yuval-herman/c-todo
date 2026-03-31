@@ -4,7 +4,7 @@
 int main(int argc, char **argv) {
   NOB_GO_REBUILD_URSELF(argc, argv);
   Cmd cmd = {0};
-  nob_cc(&cmd);
+  nob_cmd_append(&cmd, "gcc"); // We only support gcc
   nob_cc_flags(&cmd);
   nob_cmd_append(&cmd, "-g");
   nob_cmd_append(&cmd, "-Werror=switch-enum");
