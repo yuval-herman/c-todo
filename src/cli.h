@@ -62,8 +62,8 @@ typedef struct {
 // Allocates memory, call `freeArgs` when done with the args
 CLIArgs cli_parseArgs(int argc, char **argv);
 
-// Print an error for the given error code
-void cli_printError(CLIArgs args);
+// Print the last error
+void cli_printLastError();
 
 // Frees the `CLIArgs` struct
 void cli_freeArgs(CLIArgs args);

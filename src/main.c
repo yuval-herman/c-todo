@@ -11,13 +11,16 @@
 int main(int argc, char **argv) {
   CLIArgs args = cli_parseArgs(argc, argv);
   if (args.error_code != CLI_ERROR_OKAY) {
-    cli_printError(args);
+    cli_printLastError();
     int error_code = args.error_code;
     cli_freeArgs(args);
     exit(error_code);
   }
 
-  TodoDA todos = manager_readTodoFile("no-existent");
+  TodoDA todos = manager_readTodoFile("test.todo");
+  da_foreach(TodoItem, todo, &todos) {
+    manager_freeTodo(*todo);
+  }
   da_free(todos);
 
   switch (args.sub_command) {
