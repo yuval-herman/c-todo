@@ -16,18 +16,13 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
-  TodoDA todos = manager_readTodoFile("test.todo");
-  da_foreach(TodoItem, todo, &todos) {
-    manager_freeTodo(*todo);
-  }
-  da_free(todos);
-
   switch (args.sub_command) {
   case CLI_NONE:
     fprintf(stderr, "No command provided\n");
     exit(-1);
   case CLI_ADD: {
-    TodoItem todo = manager_todoFromString(args.values[0]);
+    TodoItem todo = {0};
+    ret = manager_todoFromString(&todo, args.values[0]);
     printf("Added new todo\n");
     manager_printTodoItem(todo);
     manager_freeTodo(todo);
@@ -44,6 +39,17 @@ int main(int argc, char **argv) {
       printf("%u\n", args.todo_ids[args.todo_ids_amount - 1]);
     }
     break;
+  case CLI_LIST: {
+    TodoDA todos = {0};
+    ret = manager_readTodoFile(&todos, "test.todo");
+    if (!ret)
+      return 1;
+    da_foreach(TodoItem, todo, &todos) {
+      manager_printTodoItem(*todo);
+      manager_freeTodo(*todo);
+    }
+    da_free(todos);
+  } break;
   case CLI_UNKNOWN: // Unknown should be handled above in the error handling
                     // code
   default:

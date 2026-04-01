@@ -36,6 +36,7 @@ typedef enum {
   CLI_UNKNOWN,  // When an unknown sub-command was provided
   CLI_ADD,
   CLI_REMOVE,
+  CLI_LIST,
 } CLISubcommand;
 
 typedef struct {

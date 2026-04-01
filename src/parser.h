@@ -10,4 +10,4 @@ unsigned int skip_to_blank(const char *str);
 char *DateToStr(TodoDate date);
 bool isDateEmpty(TodoDate date);
 
-TodoItem parser_parseTodoString(const char *str);
+bool parser_parseTodoString(TodoItem *todo, const char *str);

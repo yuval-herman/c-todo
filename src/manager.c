@@ -1,52 +1,52 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
+#include "../nob.h"
 #include "manager.h"
 #include "parser.h"
-#include "../nob.h"
+#include "types.h"
 
 // Used for printing todos
 String_Builder todo_repr = {0};
 
 // String is only valid until next call to any manager function
-static char* manager_todoToString(TodoItem item) {
+static char *manager_todoToString(TodoItem item) {
   todo_repr.count = 0;
 
-  sb_appendf(&todo_repr,"description = %s\n", item.description);
+  sb_appendf(&todo_repr, "description = [%s]\n", item.description);
 
   if (item.priority)
-    sb_appendf(&todo_repr,"priority    = %c\n", item.priority);
+    sb_appendf(&todo_repr, "priority    = %c\n", item.priority);
   else
-    sb_appendf(&todo_repr,"priority    = (not set)\n");
+    sb_appendf(&todo_repr, "priority    = (not set)\n");
 
   if (!isDateEmpty(item.creation_date))
-    sb_appendf(&todo_repr,"start_date  = %s\n", DateToStr(item.creation_date));
+    sb_appendf(&todo_repr, "start_date  = %s\n", DateToStr(item.creation_date));
   // if (!isDateEmpty(item.due_date))
   //   sb_appendf(&todo_repr,"due_date    = %s\n", DateToStr(item.due_date));
 
   if (item.context_amount) {
-    sb_appendf(&todo_repr,"\nContext:\n");
+    sb_appendf(&todo_repr, "\nContext:\n");
     for (unsigned int i = 0; i < item.context_amount; ++i) {
-      sb_appendf(&todo_repr,"\t%s\n", item.context[i]);
+      sb_appendf(&todo_repr, "\t%s\n", item.context[i]);
     }
   }
   if (item.tags_amount) {
-    sb_appendf(&todo_repr,"\nTags:\n");
+    sb_appendf(&todo_repr, "\nTags:\n");
     for (unsigned int i = 0; i < item.tags_amount; ++i) {
-      sb_appendf(&todo_repr,"\t%s\n", item.tags[i]);
+      sb_appendf(&todo_repr, "\t%s\n", item.tags[i]);
     }
   }
 
   return todo_repr.items;
 }
 
-void manager_printTodoItem(TodoItem item) {
-  puts(manager_todoToString(item));
-}
+void manager_printTodoItem(TodoItem item) { puts(manager_todoToString(item)); }
 
-TodoItem manager_todoFromString(char* str) {
- return parser_parseTodoString(str); 
+bool manager_todoFromString(TodoItem *item, char *str) {
+  return parser_parseTodoString(item, str);
 }
 
 // Tag is used directly, if you intend to change the string later, call strdup
@@ -68,18 +68,28 @@ void manager_addContext(TodoItem *todo, char *context) {
   todo->context_amount = new_context_amount;
 }
 
-TodoDA manager_readTodoFile(const char* filename) {
-  char* line = NULL;
-  size_t len=0;
+bool manager_readTodoFile(TodoDA *todos, const char *filename) {
+  char *line = NULL;
+  size_t len = 0;
 
-  FILE* todo_file = fopen(filename, "r");
-  if(todo_file == NULL) {
-    perror("Failed opening");
-    // Need to make a universal error reporter
-    exit(1);
+  FILE *todo_file = fopen(filename, "r");
+  if (todo_file == NULL) {
+    reportError("Failed opening todo file: %s", strerror(errno));
+    fclose(todo_file);
+    return false;
   }
+  while (getline(&line, &len, todo_file) != EOF) {
+    da_reserve(todos, todos->count + 1);
+    todos->count++;
+    returnIfError(parser_parseTodoString(&da_last(todos), line));
+  }
+  free(line);
+  fclose(todo_file);
+
+  return true;
 }
-TodoDA manager_writeTodosToFile(TodoDA todos, const char *filename);
+
+bool manager_writeTodosToFile(TodoDA *todos, const char *filename);
 
 // !!This does not free a todo pointer!!
 // Call this to free context and tags and other strings. to free a todo struct,
@@ -96,6 +106,4 @@ void manager_freeTodo(TodoItem todo) {
   free(todo.tags);
 }
 
-void manager_destroy() {
-  sb_free(todo_repr);
-}
+void manager_destroy() { sb_free(todo_repr); }

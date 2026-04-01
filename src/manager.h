@@ -2,16 +2,17 @@
 #define MANAGER_H
 
 #include "types.h"
+#include <stdbool.h>
 #include <stddef.h>
 
 typedef struct {
-    char *items;
-    size_t count;
-    size_t capacity;
+  TodoItem *items;
+  size_t count;
+  size_t capacity;
 } TodoDA;
 
 void manager_printTodoItem(TodoItem item);
-TodoItem manager_todoFromString(char* str);
+bool manager_todoFromString(TodoItem *item, char *str);
 
 // Tag is used directly, if you intend to change the string later, call strdup
 // on it first
@@ -20,8 +21,8 @@ void manager_addTag(TodoItem *todo, char *tag);
 // strdup on it first
 void manager_addContext(TodoItem *todo, char *context);
 
-TodoDA manager_readTodoFile(const char* filename);
-TodoDA manager_writeTodosToFile(TodoDA todos, const char *filename);
+bool manager_readTodoFile(TodoDA *item, const char *filename);
+bool manager_writeTodosToFile(TodoDA *todos, const char *filename);
 
 void manager_freeTodo(TodoItem todo);
 
