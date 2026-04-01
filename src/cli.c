@@ -3,8 +3,8 @@
 #include <string.h>
 
 #include "../nob.h"
-#include "types.h"
 #include "cli.h"
+#include "types.h"
 
 // Value is used directly, if you intend to change the string later, call strdup
 // on it first

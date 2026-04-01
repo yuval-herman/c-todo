@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "parser.h"
 #include "manager.h"
+#include "parser.h"
 
 unsigned int skip_blank(const char *str) {
   unsigned int pos = 0;
@@ -89,13 +89,13 @@ TodoItem parser_parseTodoString(const char *str) {
     if (str[pos] == '+') {
       unsigned int tag_end = pos + skip_to_blank(str + pos);
       manager_addTag(&todo, strndup(str + pos, tag_end - pos));
-      pos = tag_end;
+      pos = tag_end - 1;
     }
     // This is a context
     else if (str[pos] == '@') {
       unsigned int context_end = pos + skip_to_blank(str + pos);
       manager_addContext(&todo, strndup(str + pos, context_end - pos));
-      pos = context_end;
+      pos = context_end - 1;
     }
     ++pos;
   }
