@@ -1,13 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
 
 #include "../nob.h"
+#include "types.h"
 #include "cli.h"
-
-static CLIError last_error_code = CLI_ERROR_OKAY;
-static char *last_error_value = NULL;
 
 // Value is used directly, if you intend to change the string later, call strdup
 // on it first
@@ -29,19 +26,19 @@ static void cli_addId(CLIArgs *args, unsigned int id) {
 
 // static cli_parseOptions() TBD
 
-static CLIArgs cli_parseAdd(int argc, char **argv) {
-  CLIArgs args = {0};
+static bool cli_parseAdd(CLIArgs *args, int argc, char **argv) {
+  *args = (CLIArgs){0};
 
-  args.sub_command = CLI_ADD;
+  args->sub_command = CLI_ADD;
 
   if (argc < 3) {
-    last_error_code = args.error_code = CLI_ERROR_EXPECTED_VALUE;
-    return args;
+    reportError("add command requires a <todo-txt> as an argument\n");
+    return false;
   }
   // No options and one value
   else if (argc == 3) {
-    cli_addValue(&args, strdup(argv[2]));
-    return args;
+    cli_addValue(args, strdup(argv[2]));
+    return true;
   }
 
   String_Builder sb = {0};
@@ -53,83 +50,52 @@ static CLIArgs cli_parseAdd(int argc, char **argv) {
   }
   da_last(&sb) = '\0';
 
-  cli_addValue(&args, sb.items);
+  cli_addValue(args, sb.items);
 
-  return args;
+  return true;
 }
 
-static CLIArgs cli_parseRemove(int argc, char **argv) {
-  CLIArgs args = {0};
+static bool cli_parseRemove(CLIArgs *args, int argc, char **argv) {
+  *args = (CLIArgs){0};
   // Here we will place parsed ids before passing them to `cli_addId`
   int id;
 
-  args.sub_command = CLI_REMOVE;
+  args->sub_command = CLI_REMOVE;
 
   if (argc < 3) {
-    last_error_code = args.error_code = CLI_ERROR_EXPECTED_VALUE;
-    return args;
+    reportError("remove command requires an id as an argument\n");
+    return false;
   }
 
   // TODO add option parsing
   for (int i = 2; i < argc; ++i) {
     int res = sscanf(argv[i], "%4d", &id);
     if (res != 1 || id < 0) {
-      last_error_code = args.error_code = CLI_ERROR_INVALID_ID;
-      free(last_error_value);
-      last_error_value = strdup(argv[i]);
-      return args;
+      reportError("id [%s] is invalid, a valid id is a positive integer\n",
+                  argv[i]);
+      return false;
     }
-    cli_addId(&args, id);
+    cli_addId(args, id);
   }
 
-  return args;
+  return true;
 }
 
-CLIArgs cli_parseArgs(int argc, char **argv) {
-  CLIArgs args = {0};
+bool cli_parseArgs(CLIArgs *args, int argc, char **argv) {
+  *args = (CLIArgs){0};
   if (argc == 1)
-    return args;
+    return true;
 
   if (strcmp(argv[1], "add") == 0 || strcmp(argv[1], "a") == 0) {
-    args = cli_parseAdd(argc, argv);
+    returnIfError(cli_parseAdd(args, argc, argv));
   } else if (strcmp(argv[1], "remove") == 0 || strcmp(argv[1], "r") == 0) {
-    args = cli_parseRemove(argc, argv);
+    returnIfError(cli_parseRemove(args, argc, argv));
   } else {
-    args.sub_command = CLI_UNKNOWN;
-    free(last_error_value);
-    last_error_value = strdup(argv[1]);
-    last_error_code = args.error_code = CLI_ERROR_UNKNOWN_SUBCOMMAND;
+    reportError("Unknown sub-command [%s]\n", argv[1]);
+    return false;
   }
 
-  return args;
-}
-
-void cli_printLastError() {
-  switch (last_error_code) {
-  case CLI_ERROR_OKAY:
-    fprintf(stderr, "No error happened, why did you call me? (・・?)\n");
-    break;
-  case CLI_ERROR_UNKNOWN_SUBCOMMAND:
-    fprintf(stderr, "Received unknown sub-command: [%s]\n", last_error_value);
-    break;
-  case CLI_ERROR_OPTIONS_IN_VALUE:
-    fprintf(stderr, "Options (e.g. -flag) were given in the middle of the "
-                    "argument to the sub-command. Options should appear either "
-                    "before or after the main value\n");
-    break;
-  case CLI_ERROR_INVALID_ID:
-    fprintf(stderr,
-            "An invalid todo id was given: [%s].\nA valid todo id is a "
-            "positive integer\n",
-            last_error_value);
-    break;
-  case CLI_ERROR_EXPECTED_VALUE:
-    fprintf(stderr,
-            "The requested operation requires a value but none was given\n");
-    break;
-  default:
-    fprintf(stderr, "Unknown error code: %d\n", last_error_code);
-  }
+  return true;
 }
 
 void cli_freeArgs(CLIArgs args) {
@@ -138,5 +104,4 @@ void cli_freeArgs(CLIArgs args) {
   }
   free(args.values);
   free(args.todo_ids);
-  free(last_error_value);
 }

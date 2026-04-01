@@ -9,12 +9,11 @@
 #include "types.h"
 
 int main(int argc, char **argv) {
-  CLIArgs args = cli_parseArgs(argc, argv);
-  if (args.error_code != CLI_ERROR_OKAY) {
-    cli_printLastError();
-    int error_code = args.error_code;
+  CLIArgs args = {0};
+  bool ret = cli_parseArgs(&args, argc, argv);
+  if (!ret) {
     cli_freeArgs(args);
-    exit(error_code);
+    exit(1);
   }
 
   TodoDA todos = manager_readTodoFile("test.todo");

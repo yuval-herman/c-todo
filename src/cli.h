@@ -30,22 +30,13 @@
 // be returned. If non numeric ids were given, an error should be returned.
 //
 
+#include <stdbool.h>
 typedef enum {
   CLI_NONE = 0, // When no sub-command was provided
   CLI_UNKNOWN,  // When an unknown sub-command was provided
   CLI_ADD,
   CLI_REMOVE,
 } CLISubcommand;
-
-typedef enum {
-  CLI_ERROR_OKAY = 0,           // No error
-  CLI_ERROR_UNKNOWN_SUBCOMMAND, // Returned for an unknown subcommand
-  CLI_ERROR_OPTIONS_IN_VALUE, // Returned when options were given in the middle
-                              // of a value string
-  CLI_ERROR_INVALID_ID,       // Returned when a todo id is invalid
-  CLI_ERROR_EXPECTED_VALUE, // Returned when a sub-command had a required value
-                            // argument but none was given
-} CLIError;
 
 typedef struct {
   CLISubcommand sub_command;
@@ -56,14 +47,10 @@ typedef struct {
                  // it should therefore be ignored, and no assumptions on the
                  // value should be made
   unsigned int todo_ids_amount;
-  CLIError error_code; // zero for no error
 } CLIArgs;
 
 // Allocates memory, call `freeArgs` when done with the args
-CLIArgs cli_parseArgs(int argc, char **argv);
-
-// Print the last error
-void cli_printLastError();
+bool cli_parseArgs(CLIArgs *args, int argc, char **argv);
 
 // Frees the `CLIArgs` struct
 void cli_freeArgs(CLIArgs args);

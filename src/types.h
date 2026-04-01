@@ -1,5 +1,16 @@
 #ifndef TYPES_H
-#define  TYPES_H
+#define TYPES_H
+
+#define reportError(err_fmt, ...)                                              \
+  fprintf(stderr, "%.*s: " err_fmt,                                            \
+          (int)(strrchr(__FILE_NAME__, '.') - __FILE_NAME__), __FILE_NAME__,   \
+          ##__VA_ARGS__)
+
+#define returnIfError(expr)                                                    \
+  do {                                                                         \
+    if (!expr)                                                                  \
+      return false;                                                            \
+  } while (0)
 
 #define DEFAULT_PRIORITY 'C'
 
